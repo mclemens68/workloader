@@ -175,7 +175,7 @@ var AwsImportCmd = &cobra.Command{
 func callWkldImport(cloudName string, allVMs map[string]cloudData) {
 	var outputFileName string
 
-	csvData := [][]string{{"hostname", "name", "role", "app", "env", "loc", "interfaces"}}
+	csvData := [][]string{{"hostname", "role", "app", "env", "loc", "interfaces", "name"}}
 
 	for _, instance := range allVMs {
 
@@ -188,7 +188,7 @@ func callWkldImport(cloudName string, allVMs map[string]cloudData) {
 				ipdata = append(ipdata, fmt.Sprintf("eth%d:%s", num, ips))
 			}
 		}
-		csvData = append(csvData, []string{instance.Name, instance.Name, instance.Tags["role"], instance.Tags["app"], instance.Tags["env"], instance.Tags["loc"], strings.Join(ipdata, ",")})
+		csvData = append(csvData, []string{instance.Name, instance.Tags["role"], instance.Tags["app"], instance.Tags["env"], instance.Tags["loc"], strings.Join(ipdata, ";"), instance.Name})
 	}
 
 	if len(csvData) > 1 {
