@@ -94,30 +94,27 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 		vmdata := cloudData{Location: *i.Location, Name: *i.Name, OsType: i.VirtualMachineProperties.StorageProfile.OsDisk.OsType, Tags: make(map[string]string), VMID: *i.VirtualMachineProperties.VMID}
 		if azureRegion != "" && azureRegion != *i.Location {
 			continue
+		}
+		state := ""
+		if vmView, err := vmClient.InstanceView(context.Background(), rg, *i.Name); err == nil {
+			for _, status := range *vmView.Statuses {
+				code := strings.Split(*status.Code, "/")
+				switch code[0] {
+				case "PowerState":
+					state = code[1]
+				}
+			}
+			vmdata.State = state
 		} else {
-			state := ""
-			if vmView, err := vmClient.InstanceView(context.Background(), rg, *i.Name); err == nil {
-				for _, status := range *vmView.Statuses {
-					code := strings.Split(*status.Code, "/")
-					switch code[0] {
-					case "PowerState":
-						state = code[1]
-					}
-				}
-				vmdata.State = state
-			} else {
-				log.Print("got error while pulling powerstate InstanceView data: ", err)
+			log.Print("got error while pulling powerstate InstanceView data: ", err)
+		}
+
+		//fill out the struct Tag field where RAEL will live
+		for k, v := range i.Tags {
+			if keyMap[k] != "" {
+				vmdata.Tags[keyMap[k]] = *v
 			}
 
-			vmdata := cloudData{State: state, Location: *i.Location, Name: *i.Name, OsType: i.VirtualMachineProperties.StorageProfile.OsDisk.OsType, Tags: make(map[string]string), VMID: *i.VirtualMachineProperties.VMID}
-
-			//fill out the struct Tag field where RAEL will live
-			for k, v := range i.Tags {
-				if keyMap[k] != "" {
-					vmdata.Tags[keyMap[k]] = *v
-				}
-
-			}
 			for _, networkInt := range *i.VirtualMachineProperties.NetworkProfile.NetworkInterfaces {
 				tmpnetintid := strings.Split(*networkInt.ID, "/")[len(strings.Split(*networkInt.ID, "/"))-1]
 				vmNetwork := network.NewInterfacesClient(sess.SubscriptionID)
