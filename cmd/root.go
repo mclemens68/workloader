@@ -5,9 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/brian1917/workloader/utils"
-
 	"github.com/brian1917/workloader/cmd/checkversion"
+	"github.com/brian1917/workloader/cmd/cloud"
 	"github.com/brian1917/workloader/cmd/compatibility"
 	"github.com/brian1917/workloader/cmd/delete"
 	"github.com/brian1917/workloader/cmd/deleteunusedlabels"
@@ -45,6 +44,7 @@ import (
 	"github.com/brian1917/workloader/cmd/wkldexport"
 	"github.com/brian1917/workloader/cmd/wkldimport"
 	"github.com/brian1917/workloader/cmd/wkldtoipl"
+	"github.com/brian1917/workloader/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -118,6 +118,7 @@ func init() {
 	RootCmd.AddCommand(subnet.SubnetCmd)
 	RootCmd.AddCommand(hostparse.HostnameCmd)
 	RootCmd.AddCommand(snowsync.SnowSyncCmd)
+	RootCmd.AddCommand(cloud.CloudImportCmd)
 
 	// Workload management
 	RootCmd.AddCommand(compatibility.CompatibilityCmd)
