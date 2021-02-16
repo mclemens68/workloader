@@ -1,4 +1,4 @@
-package cloud
+package clouds
 
 import (
 	"context"
@@ -92,7 +92,7 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 
 		i := vm.Value()
 		vmdata := cloudData{Location: *i.Location, Name: *i.Name, OsType: i.VirtualMachineProperties.StorageProfile.OsDisk.OsType, Tags: make(map[string]string), VMID: *i.VirtualMachineProperties.VMID}
-		if azureRegion != "" && azureRegion != *i.Location {
+		if region != "" && region != *i.Location {
 			continue
 		}
 		state := ""
@@ -178,7 +178,7 @@ func azureHTTP(keyMap map[string]string) map[string]cloudData {
 
 	allVMs := make(map[string]cloudData)
 	for _, group := range groups {
-		if group == azureRG || azureRG == "" {
+		if group == rg || rg == "" {
 			allVMs = addmap(allVMs, getVM(sess, group, keyMap))
 		}
 	}

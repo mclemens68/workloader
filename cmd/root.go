@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/brian1917/workloader/cmd/checkversion"
-	"github.com/brian1917/workloader/cmd/cloud"
 	"github.com/brian1917/workloader/cmd/compatibility"
 	"github.com/brian1917/workloader/cmd/delete"
 	"github.com/brian1917/workloader/cmd/deleteunusedlabels"
@@ -36,6 +35,7 @@ import (
 	"github.com/brian1917/workloader/cmd/snowsync"
 	"github.com/brian1917/workloader/cmd/subnet"
 	"github.com/brian1917/workloader/cmd/svcexport"
+	"github.com/brian1917/workloader/cmd/syncfrom"
 	"github.com/brian1917/workloader/cmd/templateimport"
 	"github.com/brian1917/workloader/cmd/traffic"
 	"github.com/brian1917/workloader/cmd/umwlcleanup"
@@ -118,7 +118,7 @@ func init() {
 	RootCmd.AddCommand(subnet.SubnetCmd)
 	RootCmd.AddCommand(hostparse.HostnameCmd)
 	RootCmd.AddCommand(snowsync.SnowSyncCmd)
-	RootCmd.AddCommand(cloud.CloudImportCmd)
+	RootCmd.AddCommand(syncfrom.SyncFromCmd)
 
 	// Workload management
 	RootCmd.AddCommand(compatibility.CompatibilityCmd)

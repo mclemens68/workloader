@@ -1,4 +1,4 @@
-package cloud
+package clouds
 
 import "github.com/Azure/azure-sdk-for-go/profiles/latest/compute/mgmt/compute"
 
@@ -21,5 +21,4 @@ type cloudData struct {
 	OsType     compute.OperatingSystemTypes
 	Interfaces []Interface
 	State      string
-	
 }
