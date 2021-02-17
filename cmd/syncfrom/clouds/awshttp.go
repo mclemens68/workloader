@@ -44,10 +44,13 @@ func awsHTTP(region string, keyMap map[string]string) map[string]cloudData {
 
 	//Cycle through all the reservations for all arrays in that reservation
 	allVMs := make(map[string]cloudData)
-	totalinstances := 0
 	for _, res := range result.Reservations {
 		for _, instance := range res.Instances {
-			totalinstances++
+
+			if ignoreState {
+			} else if *instance.State.Name != "running" {
+				continue
+			}
 
 			// Get all the tags for the instance and compare against keymap values to see if there is a match of PCE RAEL labeks
 			var tmpName string
@@ -60,7 +63,7 @@ func awsHTTP(region string, keyMap map[string]string) map[string]cloudData {
 					tmptag[keyMap[*tag.Key]] = *tag.Value
 				}
 			}
-			tmpInstance := cloudData{Name: tmpName, VMID: *instance.InstanceId, Tags: tmptag, Location: region, OsType: ""}
+			tmpInstance := cloudData{Name: tmpName, VMID: *instance.InstanceId, Tags: tmptag, Location: region, OsType: "", State: *instance.State.Name}
 
 			//Capture all the instances interfaces and get all IPs for those interfaces.
 			for _, intf := range instance.NetworkInterfaces {
@@ -83,7 +86,7 @@ func awsHTTP(region string, keyMap map[string]string) map[string]cloudData {
 		}
 
 	}
-	utils.LogInfo(fmt.Sprintf("Total EC2 instances discovered - %d", totalinstances), true)
+	utils.LogInfo(fmt.Sprintf("Total EC2 instances discovered - %d", len(allVMs)), true)
 	return allVMs
 
 }

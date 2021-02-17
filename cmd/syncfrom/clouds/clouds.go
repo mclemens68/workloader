@@ -19,7 +19,7 @@ import (
 var credsFile, region, userID, secret, token, rg string
 
 var csvFile string
-var running, umwl, ignorePublic, debug, updatePCE, noPrompt, keepTempFile, fqdnToHostname, keepAllPCEInterfaces bool
+var ignoreState, umwl, ignorePublic, debug, updatePCE, noPrompt, keepTempFile, fqdnToHostname, keepAllPCEInterfaces bool
 var pce illumioapi.PCE
 var err error
 
@@ -36,7 +36,7 @@ func init() {
 	AwsSyncCmd.Flags().StringVarP(&secret, "secret", "p", "", "By default looks for AWS CLI created ~./aws/credentials file with user creds - can override with AWS password")
 	AwsSyncCmd.Flags().StringVarP(&token, "token", "t", "", "By default looks for AWS CLI created ~./aws/credentials file with user creds - can override with AWS token")
 	AwsSyncCmd.Flags().BoolVarP(&ignorePublic, "ignore-public", "i", false, "Use to ignore the public IP address on EC2 interfaces")
-	AwsSyncCmd.Flags().BoolVarP(&running, "running", "", true, "By default only looks for running workloads")
+	AwsSyncCmd.Flags().BoolVarP(&ignoreState, "ignore-state", "", false, "By default only looks for running workloads")
 	AwsSyncCmd.Flags().BoolVar(&umwl, "umwl", false, "Create unmanaged workloads for non-matches.")
 	AwsSyncCmd.Flags().BoolVarP(&keepTempFile, "keep-temp-file", "k", false, "Do not delete the temp CSV file downloaded from SerivceNow.")
 	AwsSyncCmd.Flags().BoolVarP(&fqdnToHostname, "fqdn-to-hostname", "f", false, "Convert FQDN hostnames reported by Illumio VEN to short hostnames by removing everything after first period (e.g., test.domain.com becomes test). ")
@@ -50,7 +50,7 @@ func init() {
 	AzureSyncCmd.Flags().StringVarP(&userID, "user", "u", "", "ServiceNow username")
 	AzureSyncCmd.Flags().StringVarP(&secret, "secret", "p", "", "ServiceNow password")
 	AzureSyncCmd.Flags().BoolVarP(&ignorePublic, "public", "i", false, "Use to ignore the public IP address on EC2 interfaces")
-	AzureSyncCmd.Flags().BoolVarP(&running, "running", "", true, "By default only looks for running workloads")
+	AzureSyncCmd.Flags().BoolVarP(&ignoreState, "ignore-state", "", false, "By default only looks for running instances.  Use this option to select all instances not matter running state")
 	AzureSyncCmd.Flags().BoolVar(&umwl, "umwl", false, "Create unmanaged workloads for non-matches.")
 	AzureSyncCmd.Flags().BoolVarP(&keepTempFile, "keep-temp-file", "k", false, "Do not delete the temp CSV file downloaded from SerivceNow.")
 	AzureSyncCmd.Flags().BoolVarP(&fqdnToHostname, "fqdn-to-hostname", "f", false, "Convert FQDN hostnames reported by Illumio VEN to short hostnames by removing everything after first period (e.g., test.domain.com becomes test). ")

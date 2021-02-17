@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
+	"github.com/jdschmitz15/integrator/utils"
 	"github.com/pkg/errors"
 )
 
@@ -111,9 +112,13 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 		}
 
 		//Ignore VMs that are not in a running state unless you specify via the command line option "--running"
-		if !running || state != "running" {
+		if ignoreState {
+		} else if state != "running" {
 			continue
 		}
+		// if notrunning || state != "running" {
+		// 	continue
+		// }
 
 		//fill out the struct Tag field where RAEL will live
 		for k, v := range i.Tags {
@@ -189,5 +194,6 @@ func azureHTTP(keyMap map[string]string) map[string]cloudData {
 			allVMs = addmap(allVMs, getVM(sess, group, keyMap))
 		}
 	}
+	utils.LogInfo(fmt.Sprintf("Total EC2 instances discovered - %d", len(allVMs)), true)
 	return allVMs
 }
