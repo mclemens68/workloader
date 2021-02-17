@@ -96,6 +96,7 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 			continue
 		}
 		state := ""
+
 		if vmView, err := vmClient.InstanceView(context.Background(), rg, *i.Name); err == nil {
 			for _, status := range *vmView.Statuses {
 				code := strings.Split(*status.Code, "/")
@@ -109,47 +110,53 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 			log.Print("got error while pulling powerstate InstanceView data: ", err)
 		}
 
+		//Ignore VMs that are not in a running state unless you specify via the command line option "--running"
+		if !running || state != "running" {
+			continue
+		}
+
 		//fill out the struct Tag field where RAEL will live
 		for k, v := range i.Tags {
 			if keyMap[k] != "" {
 				vmdata.Tags[keyMap[k]] = *v
 			}
+		}
+		for _, networkInt := range *i.VirtualMachineProperties.NetworkProfile.NetworkInterfaces {
+			tmpnetintid := strings.Split(*networkInt.ID, "/")[len(strings.Split(*networkInt.ID, "/"))-1]
+			vmNetwork := network.NewInterfacesClient(sess.SubscriptionID)
+			vmNetwork.Authorizer = sess.Authorizer
 
-			for _, networkInt := range *i.VirtualMachineProperties.NetworkProfile.NetworkInterfaces {
-				tmpnetintid := strings.Split(*networkInt.ID, "/")[len(strings.Split(*networkInt.ID, "/"))-1]
-				vmNetwork := network.NewInterfacesClient(sess.SubscriptionID)
-				vmNetwork.Authorizer = sess.Authorizer
+			results, err := vmNetwork.Get(context.Background(), rg, tmpnetintid, "")
+			if err != nil {
+				log.Print("got error while getting network profile: ", err)
+			}
 
-				results, err := vmNetwork.Get(context.Background(), rg, tmpnetintid, "")
-				if err != nil {
-					log.Print("got error while getting network profile: ", err)
-				}
+			for _, ipconfig := range *results.InterfacePropertiesFormat.IPConfigurations {
+				var tmpIP Interface
+				tmpIP.PrivateName = tmpnetintid
+				tmpIP.PrivateIP = append(tmpIP.PrivateIP, *ipconfig.InterfaceIPConfigurationPropertiesFormat.PrivateIPAddress)
+				tmpIP.Primary = *ipconfig.InterfaceIPConfigurationPropertiesFormat.Primary
+				if ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress != nil && !ignorePublic {
+					tmppubid := strings.Split(*ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress.ID, "/")[len(strings.Split(*ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress.ID, "/"))-1]
 
-				for _, ipconfig := range *results.InterfacePropertiesFormat.IPConfigurations {
-					var tmpIP Interface
-					tmpIP.PrivateName = tmpnetintid
-					tmpIP.PrivateIP = append(tmpIP.PrivateIP, *ipconfig.InterfaceIPConfigurationPropertiesFormat.PrivateIPAddress)
-					tmpIP.Primary = *ipconfig.InterfaceIPConfigurationPropertiesFormat.Primary
-					if ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress != nil {
-						tmppubid := strings.Split(*ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress.ID, "/")[len(strings.Split(*ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress.ID, "/"))-1]
-
-						vmPublicNet := network.NewPublicIPAddressesClient(sess.SubscriptionID)
-						vmPublicNet.Authorizer = sess.Authorizer
-						results, err := vmPublicNet.Get(context.Background(), rg, tmppubid, "")
-						if err != nil {
-							log.Print("got error while getting network profile: ", err)
-						}
-						if results.PublicIPAddressPropertiesFormat.IPAddress != nil {
-							tmpIP.PublicIP = *results.PublicIPAddressPropertiesFormat.IPAddress
-							tmpIP.PublicName = tmppubid
-
-						}
+					vmPublicNet := network.NewPublicIPAddressesClient(sess.SubscriptionID)
+					vmPublicNet.Authorizer = sess.Authorizer
+					results, err := vmPublicNet.Get(context.Background(), rg, tmppubid, "")
+					if err != nil {
+						log.Print("got error while getting network profile: ", err)
 					}
-					vmdata.Interfaces = append(vmdata.Interfaces, tmpIP)
+					if results.PublicIPAddressPropertiesFormat.IPAddress != nil {
+						tmpIP.PublicIP = *results.PublicIPAddressPropertiesFormat.IPAddress
+						tmpIP.PublicName = tmppubid
+
+					}
 				}
+				vmdata.Interfaces = append(vmdata.Interfaces, tmpIP)
 			}
 		}
+
 		allVMs[*i.VirtualMachineProperties.VMID] = vmdata
+
 	}
 	return allVMs
 }
