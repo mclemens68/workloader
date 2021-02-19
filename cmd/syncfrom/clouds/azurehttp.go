@@ -136,7 +136,7 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 			}
 
 			for _, ipconfig := range *results.InterfacePropertiesFormat.IPConfigurations {
-				var tmpIP NetInterface
+				var tmpIP netInterface
 				tmpIP.PrivateName = tmpnetintid
 				tmpIP.PrivateIP = append(tmpIP.PrivateIP, *ipconfig.InterfaceIPConfigurationPropertiesFormat.PrivateIPAddress)
 				tmpIP.Primary = *ipconfig.InterfaceIPConfigurationPropertiesFormat.Primary

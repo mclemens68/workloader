@@ -3,7 +3,7 @@ package clouds
 import "github.com/Azure/azure-sdk-for-go/profiles/latest/compute/mgmt/compute"
 
 // NetInterface -
-type NetInterface struct {
+type netInterface struct {
 	PrivateName string
 	PrivateIP   []string
 	PublicName  string
@@ -19,6 +19,6 @@ type cloudData struct {
 	Tags       map[string]string
 	Location   string
 	OsType     compute.OperatingSystemTypes
-	Interfaces []NetInterface
+	Interfaces []netInterface
 	State      string
 }
