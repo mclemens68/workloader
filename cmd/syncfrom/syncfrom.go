@@ -27,5 +27,6 @@ func init() {
 	// Top layer commands awsimport or azureimport
 	SyncFromCmd.AddCommand(clouds.AwsSyncCmd)
 	SyncFromCmd.AddCommand(clouds.AzureSyncCmd)
+	SyncFromCmd.AddCommand(clouds.VCenterSyncCmd)
 
 }

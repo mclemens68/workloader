@@ -57,6 +57,19 @@ func init() {
 	AzureSyncCmd.Flags().BoolVarP(&keepAllPCEInterfaces, "keep-all-pce-interfaces", "s", false, "Will not delete an interface on an unmanaged workload if it's not in the import. It will only add interfaces to the workload.")
 	AzureSyncCmd.Flags().SortFlags = false
 
+	//awsimport options
+	//VCenterSyncCmd.Flags().StringVarP(&region, "region", "r", "us-east-2", "AWS region that will be used to sync data with the PCE (default - \"us-east-2\"")
+	VCenterSyncCmd.Flags().StringVarP(&userID, "username", "u", "", "Required - username of account with access to VCenter REST API")
+	VCenterSyncCmd.Flags().StringVarP(&secret, "password", "p", "", "Required - password of account with access to VCenter REST API")
+	VCenterSyncCmd.Flags().BoolVarP(&ignoreState, "ignore-state", "", false, "By default only looks for running workloads")
+	VCenterSyncCmd.Flags().BoolVar(&umwl, "umwl", false, "Create unmanaged workloads for non-matches.")
+	VCenterSyncCmd.Flags().BoolVarP(&keepTempFile, "keep-temp-file", "k", false, "Do not delete the temp CSV file downloaded from SerivceNow.")
+	VCenterSyncCmd.Flags().BoolVarP(&fqdnToHostname, "fqdn-to-hostname", "f", false, "Convert FQDN hostnames reported by Illumio VEN to short hostnames by removing everything after first period (e.g., test.domain.com becomes test). ")
+	VCenterSyncCmd.Flags().BoolVarP(&keepAllPCEInterfaces, "keep-all-pce-interfaces", "s", false, "Will not delete an interface on an unmanaged workload if it's not in the import. It will only add interfaces to the workload.")
+	VCenterSyncCmd.MarkFlagRequired("userID")
+	VCenterSyncCmd.MarkFlagRequired("secret")
+	VCenterSyncCmd.Flags().SortFlags = false
+
 }
 
 // read-KeyFile - Reads file that maps TAG names to PCE RAEL labels.   File is added as the first argument.
