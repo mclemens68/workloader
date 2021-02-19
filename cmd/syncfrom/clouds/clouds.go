@@ -190,7 +190,7 @@ func callWkldImport(cloudName string, allVMs map[string]cloudData) {
 	}
 
 	// Call the workloader import command
-	f := wkldimport.FromCSVInput{
+	f := wkldimport.Input{
 		ImportFile:           outputFileName,
 		PCE:                  pce,
 		MatchIndex:           1,
@@ -206,7 +206,7 @@ func callWkldImport(cloudName string, allVMs map[string]cloudData) {
 		UpdatePCE:            updatePCE,
 		NoPrompt:             noPrompt,
 	}
-	wkldimport.FromCSV(f)
+	wkldimport.ImportWkldsFromCSV(f)
 
 	// Delete the temp file
 	if !keepTempFile {

@@ -111,9 +111,8 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 			log.Print("got error while pulling powerstate InstanceView data: ", err)
 		}
 
-		//Ignore VMs that are not in a running state unless you specify via the command line option "--running"
-		if ignoreState {
-		} else if state != "running" {
+		//Ignore VMs that are not in a running state unless you specify via the command line option "--ignore-state"
+		if !ignoreState && state != "running" {
 			continue
 		}
 		// if notrunning || state != "running" {
@@ -137,7 +136,7 @@ func getVM(sess *AzureSession, rg string, keyMap map[string]string) map[string]c
 			}
 
 			for _, ipconfig := range *results.InterfacePropertiesFormat.IPConfigurations {
-				var tmpIP Interface
+				var tmpIP NetInterface
 				tmpIP.PrivateName = tmpnetintid
 				tmpIP.PrivateIP = append(tmpIP.PrivateIP, *ipconfig.InterfaceIPConfigurationPropertiesFormat.PrivateIPAddress)
 				tmpIP.Primary = *ipconfig.InterfaceIPConfigurationPropertiesFormat.Primary

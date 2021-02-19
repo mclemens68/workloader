@@ -47,8 +47,7 @@ func awsHTTP(region string, keyMap map[string]string) map[string]cloudData {
 	for _, res := range result.Reservations {
 		for _, instance := range res.Instances {
 
-			if ignoreState {
-			} else if *instance.State.Name != "running" {
+			if !ignoreState && *instance.State.Name != "running" {
 				continue
 			}
 
@@ -67,7 +66,7 @@ func awsHTTP(region string, keyMap map[string]string) map[string]cloudData {
 
 			//Capture all the instances interfaces and get all IPs for those interfaces.
 			for _, intf := range instance.NetworkInterfaces {
-				var tmpawsintf Interface
+				var tmpawsintf NetInterface
 				if intf.Association != nil && !ignorePublic {
 					tmpawsintf.PublicIP = *intf.Association.PublicIp
 					tmpawsintf.PublicDNS = *intf.Association.PublicDnsName
