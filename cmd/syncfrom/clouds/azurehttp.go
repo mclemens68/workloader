@@ -15,7 +15,7 @@ import (
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
-	"github.com/jdschmitz15/integrator/utils"
+	"github.com/brian1917/workloader/utils"
 	"github.com/pkg/errors"
 )
 

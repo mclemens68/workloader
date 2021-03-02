@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var credsFile, region, userID, secret, token, rg string
+var vcenter, datacenter, folder, cluster, credsFile, region, userID, secret, token, rg string
 
 var csvFile string
 var ignoreState, umwl, ignorePublic, debug, updatePCE, noPrompt, keepTempFile, fqdnToHostname, keepAllPCEInterfaces bool
@@ -49,7 +49,7 @@ func init() {
 	AzureSyncCmd.Flags().StringVarP(&rg, "resourcegroup", "g", "", "The Azure resource group you want to Sync.  If left blank all resource groups selected")
 	AzureSyncCmd.Flags().StringVarP(&userID, "user", "u", "", "ServiceNow username")
 	AzureSyncCmd.Flags().StringVarP(&secret, "secret", "p", "", "ServiceNow password")
-	AzureSyncCmd.Flags().BoolVarP(&ignorePublic, "public", "i", false, "Use to ignore the public IP address on EC2 interfaces")
+	AzureSyncCmd.Flags().BoolVarP(&ignorePublic, "ignore-public", "i", false, "Use to ignore the public IP address on EC2 interfaces")
 	AzureSyncCmd.Flags().BoolVarP(&ignoreState, "ignore-state", "", false, "By default only looks for running instances.  Use this option to select all instances not matter running state")
 	AzureSyncCmd.Flags().BoolVar(&umwl, "umwl", false, "Create unmanaged workloads for non-matches.")
 	AzureSyncCmd.Flags().BoolVarP(&keepTempFile, "keep-temp-file", "k", false, "Do not delete the temp CSV file downloaded from SerivceNow.")
@@ -58,16 +58,20 @@ func init() {
 	AzureSyncCmd.Flags().SortFlags = false
 
 	//awsimport options
-	//VCenterSyncCmd.Flags().StringVarP(&region, "region", "r", "us-east-2", "AWS region that will be used to sync data with the PCE (default - \"us-east-2\"")
-	VCenterSyncCmd.Flags().StringVarP(&userID, "username", "u", "", "Required - username of account with access to VCenter REST API")
+	VCenterSyncCmd.Flags().StringVarP(&datacenter, "datacenter", "", "", "VCenter Datacenter that will be used to sync data with the PCE (default - \"\"")
+	//VCenterSyncCmd.Flags().StringVarP(&folder, "folder", "", "", "VCenter Datacenter that will be used to sync data with the PCE (default - \"\"")
+	VCenterSyncCmd.Flags().StringVarP(&cluster, "cluster", "", "", "VCenter Datacenter that will be used to sync data with the PCE (default - \"\"")
+	VCenterSyncCmd.Flags().StringVarP(&vcenter, "vcenter", "c", "", "Required - FQDN or IP of VCenter instance - e.g vcenter.illumio.com")
+	VCenterSyncCmd.Flags().StringVarP(&userID, "user", "u", "", "Required - username of account with access to VCenter REST API")
 	VCenterSyncCmd.Flags().StringVarP(&secret, "password", "p", "", "Required - password of account with access to VCenter REST API")
-	VCenterSyncCmd.Flags().BoolVarP(&ignoreState, "ignore-state", "", false, "By default only looks for running workloads")
+	VCenterSyncCmd.Flags().BoolVarP(&ignoreState, "ignore-state", "", false, "By default only looks for workloads in a running state")
 	VCenterSyncCmd.Flags().BoolVar(&umwl, "umwl", false, "Create unmanaged workloads for non-matches.")
 	VCenterSyncCmd.Flags().BoolVarP(&keepTempFile, "keep-temp-file", "k", false, "Do not delete the temp CSV file downloaded from SerivceNow.")
 	VCenterSyncCmd.Flags().BoolVarP(&fqdnToHostname, "fqdn-to-hostname", "f", false, "Convert FQDN hostnames reported by Illumio VEN to short hostnames by removing everything after first period (e.g., test.domain.com becomes test). ")
 	VCenterSyncCmd.Flags().BoolVarP(&keepAllPCEInterfaces, "keep-all-pce-interfaces", "s", false, "Will not delete an interface on an unmanaged workload if it's not in the import. It will only add interfaces to the workload.")
 	VCenterSyncCmd.MarkFlagRequired("userID")
 	VCenterSyncCmd.MarkFlagRequired("secret")
+	VCenterSyncCmd.MarkFlagRequired("vcenter")
 	VCenterSyncCmd.Flags().SortFlags = false
 
 }
