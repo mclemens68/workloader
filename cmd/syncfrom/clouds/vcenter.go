@@ -312,54 +312,65 @@ func getVMsFromTags(headers [][2]string, labels map[string]vcenterLabels, vms ma
 
 	for _, data := range raw.Value {
 		for _, vm := range data.ObjectIDS {
-			label := make(map[string]string)
-			label[labels[data.TagID].Key] = labels[data.TagID].Value
+			if vm.ID == "vm-110677" {
+				fmt.Print("found")
+			}
 			tmpvm := vms[vm.ID]
+			label := tmpvm.Tags
+			if label == nil {
+				label = make(map[string]string)
+				label[labels[data.TagID].Key] = labels[data.TagID].Value
+			} else {
+				label[labels[data.TagID].Key] = labels[data.TagID].Value
+			}
 			tmpvm.Tags = label
+
 			vms[vm.ID] = tmpvm
+
 		}
 	}
 
 }
-func getTagsFromVM(headers [][2]string, vm string, label map[string]vcenterLabels) map[string]string {
 
-	type vminfo struct {
-		Type string `json:"type"`
-		ID   string `json:"id"`
-	}
+// func getTagsFromVM(headers [][2]string, vm string, label map[string]vcenterLabels) map[string]string {
 
-	var raw struct {
-		Value []string `json:"value"`
-	}
+// 	type vminfo struct {
+// 		Type string `json:"type"`
+// 		ID   string `json:"id"`
+// 	}
 
-	tags := make(map[string]string)
+// 	var raw struct {
+// 		Value []string `json:"value"`
+// 	}
 
-	tmpbody := map[string]vminfo{"object_id": {ID: vm, Type: "VirtualMachine"}}
+// 	tags := make(map[string]string)
 
-	body, err := json.Marshal(tmpbody)
-	//body := []byte(`{"object_id":{"id":"vm-110677","type":"VirtualMachine"}}`)
-	var response apiResponse
-	apiURL, err := url.Parse(fmt.Sprintf("https://%s/rest/com/vmware/cis/tagging/tag-association?~action=list-attached-tags", vcenter))
+// 	tmpbody := map[string]vminfo{"object_id": {ID: vm, Type: "VirtualMachine"}}
 
-	response, err = httpCall("POST", apiURL.String(), body, headers, false)
-	if strconv.Itoa(response.StatusCode)[0:1] != "2" {
-		utils.LogInfo(fmt.Sprintf("VM doesnt have any tags - %s", vm), true)
-		fmt.Println(response, err, response)
-		return tags
-	}
+// 	body, err := json.Marshal(tmpbody)
+// 	//body := []byte(`{"object_id":{"id":"vm-110677","type":"VirtualMachine"}}`)
+// 	var response apiResponse
+// 	apiURL, err := url.Parse(fmt.Sprintf("https://%s/rest/com/vmware/cis/tagging/tag-association?~action=list-attached-tags", vcenter))
 
-	err = json.Unmarshal([]byte(response.RespBody), &raw)
-	if err != nil {
-		utils.LogError(fmt.Sprintf("GetTagFromVM Unmarshall Failed - %s", err))
-	}
+// 	response, err = httpCall("POST", apiURL.String(), body, headers, false)
+// 	if strconv.Itoa(response.StatusCode)[0:1] != "2" {
+// 		utils.LogInfo(fmt.Sprintf("VM doesnt have any tags - %s", vm), true)
+// 		fmt.Println(response, err, response)
+// 		return tags
+// 	}
 
-	for _, tag := range raw.Value {
-		if label[tag].Key != "" {
-			tags[label[tag].Key] = label[tag].Value
-		}
-	}
-	return tags
-}
+// 	err = json.Unmarshal([]byte(response.RespBody), &raw)
+// 	if err != nil {
+// 		utils.LogError(fmt.Sprintf("GetTagFromVM Unmarshall Failed - %s", err))
+// 	}
+
+// 	for _, tag := range raw.Value {
+// 		if label[tag].Key != "" {
+// 			tags[label[tag].Key] = label[tag].Value
+// 		}
+// 	}
+// 	return tags
+// }
 
 func getSessionToken() string {
 
