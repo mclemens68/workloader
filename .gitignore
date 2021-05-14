@@ -14,7 +14,6 @@ _playground/*
 *support-portal*
 deploy.sh
 .VSCodeCounter
-<<<<<<< HEAD
 __debug_bin
-=======
->>>>>>> fdd6a1999e6ec839f8d04cd6ee313d5b882975b5
+go.sum
+go.mod
