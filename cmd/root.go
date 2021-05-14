@@ -7,12 +7,11 @@ import (
 
 	"github.com/brian1917/workloader/cmd/checkversion"
 	"github.com/brian1917/workloader/cmd/compatibility"
-	"github.com/brian1917/workloader/cmd/delete"
+	"github.com/brian1917/workloader/cmd/deletehrefs"
 	"github.com/brian1917/workloader/cmd/deleteunusedlabels"
 	"github.com/brian1917/workloader/cmd/dupecheck"
+	"github.com/brian1917/workloader/cmd/edgeadmin"
 	"github.com/brian1917/workloader/cmd/edgerulecopy"
-	"github.com/brian1917/workloader/cmd/edgeruleexport"
-	"github.com/brian1917/workloader/cmd/edgeruleimport"
 	"github.com/brian1917/workloader/cmd/explorer"
 	"github.com/brian1917/workloader/cmd/extract"
 	"github.com/brian1917/workloader/cmd/flowimport"
@@ -31,18 +30,29 @@ import (
 	"github.com/brian1917/workloader/cmd/nicmanage"
 	"github.com/brian1917/workloader/cmd/pcemgmt"
 	"github.com/brian1917/workloader/cmd/ruleexport"
+	"github.com/brian1917/workloader/cmd/ruleimport"
+	"github.com/brian1917/workloader/cmd/rulesetexport"
+	"github.com/brian1917/workloader/cmd/rulesetimport"
 	"github.com/brian1917/workloader/cmd/servicefinder"
 	"github.com/brian1917/workloader/cmd/snowsync"
 	"github.com/brian1917/workloader/cmd/subnet"
 	"github.com/brian1917/workloader/cmd/svcexport"
+<<<<<<< HEAD
 	"github.com/brian1917/workloader/cmd/syncfrom"
+=======
+	"github.com/brian1917/workloader/cmd/svcimport"
+	"github.com/brian1917/workloader/cmd/sync/dag"
+	"github.com/brian1917/workloader/cmd/templatecreate"
+>>>>>>> fdd6a1999e6ec839f8d04cd6ee313d5b882975b5
 	"github.com/brian1917/workloader/cmd/templateimport"
+	"github.com/brian1917/workloader/cmd/templatelist"
 	"github.com/brian1917/workloader/cmd/traffic"
 	"github.com/brian1917/workloader/cmd/umwlcleanup"
 	"github.com/brian1917/workloader/cmd/unpair"
 	"github.com/brian1917/workloader/cmd/upgrade"
 	"github.com/brian1917/workloader/cmd/wkldexport"
 	"github.com/brian1917/workloader/cmd/wkldimport"
+	"github.com/brian1917/workloader/cmd/wkldiplmapping"
 	"github.com/brian1917/workloader/cmd/wkldtoipl"
 	"github.com/brian1917/workloader/utils"
 	"github.com/spf13/cobra"
@@ -108,10 +118,16 @@ func init() {
 	RootCmd.AddCommand(labelexport.LabelExportCmd)
 	RootCmd.AddCommand(labelgroupexport.LabelGroupExportCmd)
 	RootCmd.AddCommand(labelgroupimport.LabelGroupImportCmd)
+	RootCmd.AddCommand(svcimport.SvcImportCmd)
 	RootCmd.AddCommand(svcexport.SvcExportCmd)
+	RootCmd.AddCommand(rulesetexport.RuleSetExportCmd)
+	RootCmd.AddCommand(rulesetimport.RuleSetImportCmd)
 	RootCmd.AddCommand(ruleexport.RuleExportCmd)
+	RootCmd.AddCommand(ruleimport.RuleImportCmd)
 	RootCmd.AddCommand(flowimport.FlowImportCmd)
 	RootCmd.AddCommand(templateimport.TemplateImportCmd)
+	RootCmd.AddCommand(templatelist.TemplateListCmd)
+	RootCmd.AddCommand(templatecreate.TemplateCreateCmd)
 
 	// Automated Labeling
 	RootCmd.AddCommand(traffic.TrafficCmd)
@@ -126,7 +142,7 @@ func init() {
 	RootCmd.AddCommand(upgrade.UpgradeCmd)
 	RootCmd.AddCommand(getpairingkey.GetPairingKey)
 	RootCmd.AddCommand(unpair.UnpairCmd)
-	RootCmd.AddCommand(delete.DeleteCmd)
+	RootCmd.AddCommand(deletehrefs.DeleteCmd)
 	RootCmd.AddCommand(umwlcleanup.UMWLCleanUpCmd)
 	RootCmd.AddCommand(nicmanage.NICManageCmd)
 
@@ -141,12 +157,12 @@ func init() {
 	RootCmd.AddCommand(explorer.ExplorerCmd)
 	RootCmd.AddCommand(nicexport.NICExportCmd)
 	RootCmd.AddCommand(servicefinder.ServiceFinderCmd)
+	RootCmd.AddCommand(wkldiplmapping.WkldIPLMappingCmd)
 
 	// Edge Commands
 	RootCmd.AddCommand(wkldtoipl.WorkloadToIPLCmd)
 	RootCmd.AddCommand(edgerulecopy.EdgeRuleCopyCmd)
-	RootCmd.AddCommand(edgeruleexport.EdgeRuleExportCmd)
-	RootCmd.AddCommand(edgeruleimport.EdgeRuleImportCmd)
+	RootCmd.AddCommand(edgeadmin.EdgeAdminCmd)
 
 	// Version Commands
 	RootCmd.AddCommand(versionCmd)
@@ -154,6 +170,7 @@ func init() {
 
 	// Undocumented
 	RootCmd.AddCommand(extract.ExtractCmd)
+	RootCmd.AddCommand(dag.DAGSyncCmd)
 
 	// Set the usage templates
 	for _, c := range RootCmd.Commands() {

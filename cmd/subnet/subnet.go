@@ -163,16 +163,16 @@ func subnetParser() {
 	for _, w := range allWklds {
 
 		roleCheck, appCheck, envCheck, locCheck := true, true, true, true
-		if app != "" && w.GetApp(pce.LabelMapH).Value != app {
+		if app != "" && w.GetApp(pce.Labels).Value != app {
 			appCheck = false
 		}
-		if role != "" && w.GetRole(pce.LabelMapH).Value != role {
+		if role != "" && w.GetRole(pce.Labels).Value != role {
 			roleCheck = false
 		}
-		if env != "" && w.GetEnv(pce.LabelMapH).Value != env {
+		if env != "" && w.GetEnv(pce.Labels).Value != env {
 			envCheck = false
 		}
-		if loc != "" && w.GetLoc(pce.LabelMapH).Value != loc {
+		if loc != "" && w.GetLoc(pce.Labels).Value != loc {
 			locCheck = false
 		}
 		if roleCheck && appCheck && locCheck && envCheck && !setLabelExcl {
@@ -200,18 +200,18 @@ func subnetParser() {
 				}
 				if nets.network.Contains(net.ParseIP(i.Address)) {
 					// Update labels (not in PCE yet, just on object)
-					if nets.loc != "" && nets.loc != w.GetLoc(pce.LabelMapH).Value {
+					if nets.loc != "" && nets.loc != w.GetLoc(pce.Labels).Value {
 						changed = true
-						m.oldLoc = w.GetLoc(pce.LabelMapH).Value
+						m.oldLoc = w.GetLoc(pce.Labels).Value
 						pce, err = w.ChangeLabel(pce, "loc", nets.loc)
 						if err != nil {
 							utils.LogError(err.Error())
 						}
 						m.workload = w
 					}
-					if nets.env != "" && nets.env != w.GetEnv(pce.LabelMapH).Value {
+					if nets.env != "" && nets.env != w.GetEnv(pce.Labels).Value {
 						changed = true
-						m.oldEnv = w.GetEnv(pce.LabelMapH).Value
+						m.oldEnv = w.GetEnv(pce.Labels).Value
 						pce, err = w.ChangeLabel(pce, "env", nets.env)
 						if err != nil {
 							utils.LogError(err.Error())
@@ -221,7 +221,7 @@ func subnetParser() {
 				}
 			}
 		}
-		if changed == true {
+		if changed {
 			matches = append(matches, m)
 			updatedWklds = append(updatedWklds, w)
 		}
@@ -238,7 +238,7 @@ func subnetParser() {
 			for _, i := range m.workload.Interfaces {
 				interfaceSlice = append(interfaceSlice, fmt.Sprintf("%s:%s", i.Name, i.Address))
 			}
-			data = append(data, []string{m.workload.Hostname, m.workload.Name, m.workload.GetRole(pce.LabelMapH).Value, m.workload.GetApp(pce.LabelMapH).Value, m.workload.GetEnv(pce.LabelMapH).Value, m.workload.GetLoc(pce.LabelMapH).Value, strings.Join(interfaceSlice, ";"), m.oldEnv, m.oldLoc, m.workload.Href})
+			data = append(data, []string{m.workload.Hostname, m.workload.Name, m.workload.GetRole(pce.Labels).Value, m.workload.GetApp(pce.Labels).Value, m.workload.GetEnv(pce.Labels).Value, m.workload.GetLoc(pce.Labels).Value, strings.Join(interfaceSlice, ";"), m.oldEnv, m.oldLoc, m.workload.Href})
 		}
 
 		// Write the output file
@@ -260,7 +260,7 @@ func subnetParser() {
 		// If updatePCE is set, but not noPrompt, we will prompt the user.
 		if updatePCE && !noPrompt {
 			var prompt string
-			fmt.Printf("[PROMPT] - workloader will change the labels of %d workloads in %s (%s). Do you want to run the change (yes/no)? ", len(data)-1, viper.Get("default_pce_name").(string), viper.Get(viper.Get("default_pce_name").(string)+".fqdn").(string))
+			fmt.Printf("[PROMPT] - workloader will change the labels of %d workloads in %s (%s). Do you want to run the change (yes/no)? ", len(data)-1, pce.FriendlyName, viper.Get(pce.FriendlyName+".fqdn").(string))
 			fmt.Scanln(&prompt)
 			if strings.ToLower(prompt) != "yes" {
 				utils.LogInfo(fmt.Sprintf("prompt denied to change labels of %d workloads.", len(data)-1), true)

@@ -20,7 +20,7 @@ import (
 var pce illumioapi.PCE
 var err error
 var provision, debug, updatePCE, noPrompt bool
-var csvFile, outFormat string
+var csvFile string
 
 func init() {
 	IplImportCmd.Flags().BoolVarP(&provision, "provision", "p", false, "Provision IP Lists after creating and/or updating.")
@@ -65,7 +65,6 @@ Recommended to run without --update-pce first to log of what will change. If --u
 
 		// Get the viper values
 		debug = viper.Get("debug").(bool)
-		outFormat = viper.Get("output_format").(string)
 		updatePCE = viper.Get("update_pce").(bool)
 		noPrompt = viper.Get("no_prompt").(bool)
 
@@ -141,8 +140,17 @@ func ImportIPLists(pce illumioapi.PCE, csvFile string, updatePCE, noPrompt, debu
 
 		// Build our ranges for include
 		includeCSV := strings.Split(strings.ReplaceAll(line[incCol], " ", ""), ";")
+		if includeCSV[0] == "" {
+			includeCSV = nil
+		}
 		excludeCSV := strings.Split(strings.ReplaceAll(line[excCol], " ", ""), ";")
+		if excludeCSV[0] == "" {
+			excludeCSV = nil
+		}
 		fqdns := strings.Split(strings.ReplaceAll(line[fqdnsCol], " ", ""), ";")
+		if fqdns[0] == "" {
+			fqdns = nil
+		}
 
 		// Iterate the includes
 		for _, i := range includeCSV {
@@ -320,7 +328,7 @@ func ImportIPLists(pce illumioapi.PCE, csvFile string, updatePCE, noPrompt, debu
 	// If updatePCE is set, but not noPrompt, we will prompt the user.
 	if updatePCE && !noPrompt {
 		var prompt string
-		fmt.Printf("[PROMPT] - workloader will create %d iplists and update %d iplists in %s (%s). Do you want to run the import (yes/no)? ", len(IPLsToCreate), len(IPLsToUpdate), viper.Get("default_pce_name").(string), viper.Get(viper.Get("default_pce_name").(string)+".fqdn").(string))
+		fmt.Printf("[PROMPT] - workloader will create %d iplists and update %d iplists in %s (%s). Do you want to run the import (yes/no)? ", len(IPLsToCreate), len(IPLsToUpdate), pce.FriendlyName, viper.Get(pce.FriendlyName+".fqdn").(string))
 
 		fmt.Scanln(&prompt)
 		if strings.ToLower(prompt) != "yes" {

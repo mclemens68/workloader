@@ -13,7 +13,7 @@ import (
 
 // Global variables
 var csvFile string
-var provision, debug, updatePCE, noPrompt bool
+var provision, updatePCE, noPrompt bool
 var pce illumioapi.PCE
 var err error
 
@@ -68,7 +68,6 @@ Recommended to run without --update-pce first to log of what will change. If --u
 		csvFile = args[0]
 
 		// Get the debug value from viper
-		debug = viper.Get("debug").(bool)
 		updatePCE = viper.Get("update_pce").(bool)
 		noPrompt = viper.Get("no_prompt").(bool)
 
@@ -98,13 +97,6 @@ func labelGroupImport() {
 		pceLGMap[lg.Name] = lg
 		pceLGMap[lg.Href] = lg
 		pceLGKeyNameMap[lg.Key+lg.Name] = lg
-	}
-
-	// Get the PCE Label Maps
-	a, err = pce.GetLabelMaps()
-	utils.LogAPIResp("GetLabelMaps", a)
-	if err != nil {
-		utils.LogError(err.Error())
 	}
 
 	// Create the csvParse
@@ -158,7 +150,7 @@ CSVEntries:
 				labels = []string{}
 			}
 			for _, l := range labels {
-				if pceLabel, check := pce.LabelMapKV[line[c.KeyIndex]+l]; !check {
+				if pceLabel, check := pce.Labels[line[c.KeyIndex]+l]; !check {
 					utils.LogWarning(fmt.Sprintf("CSV Line %d - the label %s (%s) does not exist. Skipping entry.", i+1, l, line[c.KeyIndex]), true)
 					continue CSVEntries
 				} else {
@@ -225,7 +217,7 @@ CSVEntries:
 			csvLabels := make(map[string]bool)
 			if c.MemberLabelsIndex != 99999 {
 				for _, l := range pceLabelGroup.Labels {
-					pceLabels[pce.LabelMapH[l.Href].Value] = true
+					pceLabels[pce.Labels[l.Href].Value] = true
 				}
 				labels := []string{}
 				if line[c.MemberLabelsIndex] != "" {
@@ -238,7 +230,7 @@ CSVEntries:
 				for l := range csvLabels {
 					if !pceLabels[l] {
 						// Check if the label exists
-						if _, check := pce.LabelMapKV[line[c.KeyIndex]+l]; !check {
+						if _, check := pce.Labels[line[c.KeyIndex]+l]; !check {
 							utils.LogWarning(fmt.Sprintf("CSV Line %d - %s - %s(%s) does not exist in the PCE as a label. Skipping entry.", i+1, line[c.NameIndex], l, line[c.KeyIndex]), true)
 							continue CSVEntries
 						}
@@ -259,7 +251,7 @@ CSVEntries:
 			if labelUpdate {
 				update = true
 				for l := range csvLabels {
-					newLabels = append(newLabels, &illumioapi.Label{Href: pce.LabelMapKV[line[c.KeyIndex]+l].Href})
+					newLabels = append(newLabels, &illumioapi.Label{Href: pce.Labels[line[c.KeyIndex]+l].Href})
 				}
 				pceLabelGroup.Labels = newLabels
 			} else {
@@ -345,7 +337,7 @@ CSVEntries:
 	// If updatePCE is set, but not noPrompt, we will prompt the user.
 	if updatePCE && !noPrompt {
 		var prompt string
-		fmt.Printf("[PROMPT] - workloader will create %d label groups and update %d label groups in %s (%s). Do you want to run the import (yes/no)? ", len(newLabelGroups), len(updatedLabelGroups), viper.Get("default_pce_name").(string), viper.Get(viper.Get("default_pce_name").(string)+".fqdn").(string))
+		fmt.Printf("[PROMPT] - workloader will create %d label groups and update %d label groups in %s (%s). Do you want to run the import (yes/no)? ", len(newLabelGroups), len(updatedLabelGroups), pce.FriendlyName, viper.Get(pce.FriendlyName+".fqdn").(string))
 
 		fmt.Scanln(&prompt)
 		if strings.ToLower(prompt) != "yes" {

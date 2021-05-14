@@ -149,16 +149,16 @@ func unpair() {
 			continue
 		}
 		roleCheck, appCheck, envCheck, locCheck := true, true, true, true
-		if app != "" && w.GetApp(pce.LabelMapH).Value != app {
+		if app != "" && w.GetApp(pce.Labels).Value != app {
 			appCheck = false
 		}
-		if role != "" && w.GetRole(pce.LabelMapH).Value != role {
+		if role != "" && w.GetRole(pce.Labels).Value != role {
 			roleCheck = false
 		}
-		if env != "" && w.GetEnv(pce.LabelMapH).Value != env {
+		if env != "" && w.GetEnv(pce.Labels).Value != env {
 			envCheck = false
 		}
-		if loc != "" && w.GetLoc(pce.LabelMapH).Value != loc {
+		if loc != "" && w.GetLoc(pce.Labels).Value != loc {
 			locCheck = false
 		}
 		if roleCheck && appCheck && locCheck && envCheck && !setLabelExcl {
@@ -192,7 +192,7 @@ func unpair() {
 			hoursSinceLastHB = fmt.Sprintf("%f", now.Sub(timeParsed).Hours())
 		}
 		// Append to our data array
-		data = append(data, []string{t.Hostname, t.Href, t.GetRole(pce.LabelMapH).Value, t.GetApp(pce.LabelMapH).Value, t.GetEnv(pce.LabelMapH).Value, t.GetLoc(pce.LabelMapH).Value, t.Agent.Status.SecurityPolicySyncState, t.Agent.Status.LastHeartbeatOn, hoursSinceLastHB})
+		data = append(data, []string{t.Hostname, t.Href, t.GetRole(pce.Labels).Value, t.GetApp(pce.Labels).Value, t.GetEnv(pce.Labels).Value, t.GetLoc(pce.Labels).Value, t.Agent.Status.SecurityPolicySyncState, t.Agent.Status.LastHeartbeatOn, hoursSinceLastHB})
 	}
 
 	// Write CSV data
@@ -211,7 +211,7 @@ func unpair() {
 	// If updatePCE is set, but not noPrompt, we will prompt the user.
 	if updatePCE && !noPrompt {
 		var prompt string
-		fmt.Printf("%s [PROMPT] - workloader identified %d workloads requiring unpairing in %s (%s). See %s for details. Do you want to run the unpair? (yes/no)? ", time.Now().Format("2006-01-02 15:04:05 "), len(targetWklds), viper.Get("default_pce_name").(string), viper.Get(viper.Get("default_pce_name").(string)+".fqdn").(string), outputFileName)
+		fmt.Printf("%s [PROMPT] - workloader identified %d workloads requiring unpairing in %s (%s). See %s for details. Do you want to run the unpair? (yes/no)? ", time.Now().Format("2006-01-02 15:04:05 "), len(targetWklds), pce.FriendlyName, viper.Get(pce.FriendlyName+".fqdn").(string), outputFileName)
 		fmt.Scanln(&prompt)
 		if strings.ToLower(prompt) != "yes" {
 			utils.LogInfo(fmt.Sprintf("prompt denied to unpair %d workloads.", len(targetWklds)), true)

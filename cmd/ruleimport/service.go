@@ -1,4 +1,4 @@
-package edgeruleimport
+package ruleimport
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ func serviceComparison(csvServices []string, rule illumioapi.Rule, pceServiceMap
 	for _, c := range csvServices {
 
 		// Check if last three letters are TCP or UDP
-		if strings.ToLower(c[len(c)-3:]) == "tcp" || strings.ToLower(c[len(c)-3:]) == "udp" {
+		if _, err := strconv.Atoi(string(c[0])); err == nil && (strings.ToLower(c[len(c)-3:]) == "tcp" || strings.ToLower(c[len(c)-3:]) == "udp") && strings.Count(c, " ") == 1 {
 
 			protocol, port, toPort, err := parseCSVPortEntry(c)
 			if err != nil {
@@ -32,27 +32,30 @@ func serviceComparison(csvServices []string, rule illumioapi.Rule, pceServiceMap
 			if protocol == "udp" {
 				proto = 17
 			}
-			csvServiceEntries[fmt.Sprintf("%s-%d-%d", protocol, port, toPort)] = illumioapi.IngressServices{Protocol: proto, Port: port, ToPort: toPort}
-		}
+			csvServiceEntries[fmt.Sprintf("%s-%d-%d", protocol, port, toPort)] = illumioapi.IngressServices{Protocol: &proto, Port: port, ToPort: toPort}
 
-		// Check if it's a service
-		if service, exists := pceServiceMap[c]; exists {
+			// Check if it's a service
+		} else if service, exists := pceServiceMap[c]; exists {
 			// Add to our slice
-			csvServiceEntries[pceServiceMap[service.Href].Name] = illumioapi.IngressServices{Href: service.Href}
+			csvServiceEntries[pceServiceMap[service.Href].Name] = illumioapi.IngressServices{Href: &service.Href}
+		} else {
+			utils.LogError(fmt.Sprintf("CSV line %d - %s does not exist as a service", csvLine, c))
 		}
 	}
 
 	// Process the rule provided ingress services
-	for _, ruleService := range rule.IngressServices {
-		// Port range here
-		if ruleService.Href == "" {
-			protocol := "tcp"
-			if ruleService.Protocol == 17 {
-				protocol = "udp"
+	if rule.IngressServices != nil {
+		for _, ruleService := range *rule.IngressServices {
+			// Port range here
+			if ruleService.Href == nil {
+				protocol := "tcp"
+				if *ruleService.Protocol == 17 {
+					protocol = "udp"
+				}
+				ruleServiceEntries[fmt.Sprintf("%s-%d-%d", protocol, ruleService.Port, ruleService.ToPort)] = *ruleService
+			} else {
+				ruleServiceEntries[pceServiceMap[*ruleService.Href].Name] = *ruleService
 			}
-			ruleServiceEntries[fmt.Sprintf("%s-%d-%d", protocol, ruleService.Port, ruleService.ToPort)] = *ruleService
-		} else {
-			ruleServiceEntries[pceServiceMap[ruleService.Href].Name] = *ruleService
 		}
 	}
 
@@ -71,7 +74,7 @@ func serviceComparison(csvServices []string, rule illumioapi.Rule, pceServiceMap
 	// Check to see if what's in the PCE rule is in the CSV
 	for s := range ruleServiceEntries {
 		if _, check := csvServiceEntries[s]; !check && rule.Href != "" {
-			utils.LogInfo(fmt.Sprintf("CSV line %d - %s is a service in the PCE  rule but is not in the CSV rule. It will be removed.", csvLine, s), false)
+			utils.LogInfo(fmt.Sprintf("CSV line %d - %s is a service in the PCE rule but is not in the CSV rule. It will be removed.", csvLine, s), false)
 			change = true
 		}
 	}
@@ -83,10 +86,10 @@ func serviceComparison(csvServices []string, rule illumioapi.Rule, pceServiceMap
 		}
 		return true, returnServices
 	}
-	return false, rule.IngressServices
+	return false, *rule.IngressServices
 }
 
-func parseCSVPortEntry(entry string) (protocol string, port int, toPort int, err error) {
+func parseCSVPortEntry(entry string) (protocol string, port *int, toPort *int, err error) {
 
 	// Get the protocol
 	protocol = strings.ToLower(entry[len(entry)-3:])
@@ -97,16 +100,17 @@ func parseCSVPortEntry(entry string) (protocol string, port int, toPort int, err
 	// Split the ports on the dash
 	s := strings.Split(entry, "-")
 	if len(s) == 1 {
-		port, err = strconv.Atoi(s[0][:len(s[0])-3])
+		p, err := strconv.Atoi(s[0][:len(s[0])-3])
+		port = &p
 		if err != nil {
 			return protocol, port, toPort, err
 		}
 	} else {
-		port, err = strconv.Atoi(s[0])
+		*port, err = strconv.Atoi(s[0])
 		if err != nil {
 			return protocol, port, toPort, err
 		}
-		toPort, err = strconv.Atoi(s[1][:len(s[1])-3])
+		*toPort, err = strconv.Atoi(s[1][:len(s[1])-3])
 		if err != nil {
 			return protocol, port, toPort, err
 		}

@@ -3,6 +3,7 @@
 test-files/*
 *.log
 *.csv
+!illumio-templates/*.csv
 !workloader-identifier-default.csv
 !default-import-csv.csv
 !*parser-table.csv*
@@ -13,4 +14,7 @@ _playground/*
 *support-portal*
 deploy.sh
 .VSCodeCounter
+<<<<<<< HEAD
 __debug_bin
+=======
+>>>>>>> fdd6a1999e6ec839f8d04cd6ee313d5b882975b5

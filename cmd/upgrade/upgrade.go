@@ -86,16 +86,16 @@ func wkldUpgrade() {
 			if w.GetMode() == "unmanaged" {
 				continue
 			}
-			if app != "" && w.GetApp(pce.LabelMapH).Value != app {
+			if app != "" && w.GetApp(pce.Labels).Value != app {
 				continue
 			}
-			if role != "" && w.GetRole(pce.LabelMapH).Value != role {
+			if role != "" && w.GetRole(pce.Labels).Value != role {
 				continue
 			}
-			if env != "" && w.GetEnv(pce.LabelMapH).Value != env {
+			if env != "" && w.GetEnv(pce.Labels).Value != env {
 				continue
 			}
-			if loc != "" && w.GetLoc(pce.LabelMapH).Value != loc {
+			if loc != "" && w.GetLoc(pce.Labels).Value != loc {
 				continue
 			}
 			if w.Agent.Status.AgentVersion == targetVersion {
@@ -148,7 +148,7 @@ func wkldUpgrade() {
 	// Build the data slice for writing
 	data := [][]string{[]string{"hostname", "href", "role", "app", "env", "loc", "current_ven_version", "targeted_ven_version"}}
 	for _, t := range targetWklds {
-		data = append(data, []string{t.Hostname, t.Href, t.GetRole(pce.LabelMapH).Value, t.GetApp(pce.LabelMapH).Value, t.GetEnv(pce.LabelMapH).Value, t.GetLoc(pce.LabelMapH).Value, t.Agent.Status.AgentVersion, targetVersion})
+		data = append(data, []string{t.Hostname, t.Href, t.GetRole(pce.Labels).Value, t.GetApp(pce.Labels).Value, t.GetEnv(pce.Labels).Value, t.GetLoc(pce.Labels).Value, t.Agent.Status.AgentVersion, targetVersion})
 	}
 
 	// Write CSV data
@@ -169,7 +169,7 @@ func wkldUpgrade() {
 	// If updatePCE is set, but not noPrompt, we will prompt the user.
 	if updatePCE && !noPrompt {
 		var prompt string
-		fmt.Printf("[PROMPT] - workloader identified %d workloads in %s (%s) requiring VEN updates. See %s for details. Do you want to run the upgrade? (yes/no)? ", len(targetWklds), viper.Get("default_pce_name").(string), viper.Get(viper.Get("default_pce_name").(string)+".fqdn").(string), outFile.Name())
+		fmt.Printf("[PROMPT] - workloader identified %d workloads in %s (%s) requiring VEN updates. See %s for details. Do you want to run the upgrade? (yes/no)? ", len(targetWklds), pce.FriendlyName, viper.Get(pce.FriendlyName+".fqdn").(string), outFile.Name())
 		fmt.Scanln(&prompt)
 		if strings.ToLower(prompt) != "yes" {
 			utils.LogInfo(fmt.Sprintf("prompt denied to upgrade %d workloads", len(targetWklds)), true)

@@ -71,7 +71,6 @@ type result struct {
 	loc         string
 	role        string
 	reason      string
-	wlhostname  string
 	eApp        string
 	eEnv        string
 	eLoc        string
@@ -82,7 +81,7 @@ type result struct {
 
 // Workload Labels
 func (m *result) existingLabels(workloads map[string]illumioapi.Workload, labels map[string]illumioapi.Label) {
-	for _, l := range workloads[m.ipAddress].Labels {
+	for _, l := range *workloads[m.ipAddress].Labels {
 		switch {
 		case labels[l.Href].Key == "app":
 			{
@@ -264,7 +263,7 @@ func workloadIdentifier() {
 						}
 					}
 					// Populate existing label information
-					r.existingLabels(allIPWLs, pce.LabelMapH)
+					r.existingLabels(allIPWLs, pce.Labels)
 
 					// Append results to a new array if RFC 1918 and that's all we want OR we don't care about RFC 1918.
 					if rfc1918(r.ipAddress) && privOnly || !privOnly {
