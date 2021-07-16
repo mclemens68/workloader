@@ -51,6 +51,7 @@ import (
 	"github.com/brian1917/workloader/cmd/wkldexport"
 	"github.com/brian1917/workloader/cmd/wkldimport"
 	"github.com/brian1917/workloader/cmd/wkldiplmapping"
+	"github.com/brian1917/workloader/cmd/wkldpolicy"
 	"github.com/brian1917/workloader/cmd/wkldtoipl"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -167,6 +168,7 @@ func init() {
 	// Undocumented
 	RootCmd.AddCommand(extract.ExtractCmd)
 	RootCmd.AddCommand(dag.DAGSyncCmd)
+	RootCmd.AddCommand(wkldpolicy.WorkloadPolciyExport)
 
 	// Set the usage templates
 	for _, c := range RootCmd.Commands() {
