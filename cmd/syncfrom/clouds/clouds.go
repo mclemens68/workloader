@@ -205,18 +205,14 @@ func callWkldImport(cloudName string, allVMs map[string]cloudData) {
 		// Log command execution for 0 results
 		utils.LogInfo("no cloud instances found for export.", true)
 	}
-
+	tmpIndex := -1
 	// Call the workloader import command
 	f := wkldimport.Input{
 		ImportFile:           outputFileName,
 		PCE:                  pce,
-		MatchIndex:           1,
-		RoleIndex:            2,
-		AppIndex:             3,
-		EnvIndex:             4,
-		LocIndex:             5,
-		IntIndex:             6,
-		NameIndex:            7,
+		MatchIndex:           &tmpIndex,
+		Headers:              nil,
+		RemoveValue:          "",
 		Umwl:                 umwl,
 		KeepAllPCEInterfaces: keepAllPCEInterfaces,
 		FQDNtoHostname:       fqdnToHostname,

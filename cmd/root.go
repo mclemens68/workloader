@@ -37,13 +37,10 @@ import (
 	"github.com/brian1917/workloader/cmd/snowsync"
 	"github.com/brian1917/workloader/cmd/subnet"
 	"github.com/brian1917/workloader/cmd/svcexport"
-<<<<<<< HEAD
-	"github.com/brian1917/workloader/cmd/syncfrom"
-=======
 	"github.com/brian1917/workloader/cmd/svcimport"
 	"github.com/brian1917/workloader/cmd/sync/dag"
+	"github.com/brian1917/workloader/cmd/syncfrom"
 	"github.com/brian1917/workloader/cmd/templatecreate"
->>>>>>> fdd6a1999e6ec839f8d04cd6ee313d5b882975b5
 	"github.com/brian1917/workloader/cmd/templateimport"
 	"github.com/brian1917/workloader/cmd/templatelist"
 	"github.com/brian1917/workloader/cmd/traffic"
