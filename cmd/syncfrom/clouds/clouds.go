@@ -16,10 +16,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var vcenter, datacenter, folder, cluster, credsFile, region, userID, secret, token, rg string
+var vcenter, datacenter, cluster, credsFile, region, userID, secret, token, rg string
 
 var csvFile string
-var ignoreState, umwl, ignorePublic, debug, updatePCE, noPrompt, keepTempFile, fqdnToHostname, keepAllPCEInterfaces bool
+var ignoreState, umwl, ignorePublic, updatePCE, noPrompt, keepTempFile, fqdnToHostname, keepAllPCEInterfaces, debug bool
 var pce illumioapi.PCE
 var err error
 
